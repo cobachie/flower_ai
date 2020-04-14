@@ -7,18 +7,31 @@ import json
 from flickrapi import FlickrAPI
 
 def main():
-    keyword = sys.argv[1]
+    # keyword = sys.argv[1]
+    flowers = ['tulip', 'garbera', 'anemone',
+               'rose', 'cherryblossom', 'viola',
+               'daisy', 'poppy', 'carnation']
 
-    photos = flickr_photos(keyword)
+    for flower_name in flowers:
+        # Flickrを検索して写真の情報を取得する
+        keyword = "{} flower".format(flower_name)
+        photos = flickr_photos(keyword)
 
-    # 画像を保存するディレクトリ
-    STORAGE_DIR = '/Volumes/Photos/flower_ai/'
-    target_dir = STORAGE_DIR + keyword + '/'
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
+        # 写真を保存するディレクトリ
+        STORAGE_DIR = '/Volumes/Photos/flower_ai/'
+        target_dir = STORAGE_DIR + flower_name + '/'
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
 
-    for i, photo in enumerate(photos['photo']):
-        if not save_image(photo, target_dir): continue
+        # 写真をダウンロードする
+        for photo in photos['photo']:
+            url_q = photo['url_q']
+            img_path = target_dir + photo['id'] + '.jpg'
+            if os.path.exists(img_path): continue
+
+            request.urlretrieve(url_q, img_path)
+
+            time.sleep(1)
 
 
 def flickr_photos(keyword):
@@ -45,16 +58,5 @@ def flickr_photos(keyword):
     return photos
 
 
-def save_image(photo, dir):
-    url_q = photo['url_q']
-    img_path = dir + photo['id'] + '.jpg'
-    if os.path.exists(img_path): return False
-
-    request.urlretrieve(url_q, img_path)
-
-    time.sleep(1)
-
-
 if __name__ == "__main__":
     main()
-
