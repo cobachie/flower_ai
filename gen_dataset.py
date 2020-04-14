@@ -5,7 +5,6 @@ import random
 
 import numpy as np
 from PIL import Image
-import cv2
 
 DATA_DIR = '/Volumes/Photos/flower_ai/'
 CATEGORIES = ['tulip', 'garbera', 'anemone',
@@ -25,23 +24,23 @@ def main():
         files = glob.glob(path + '/*.jpg')
 
         for i, file in enumerate(files):
-            img_array = cv2.imread(file)
-            img_array = cv2.resize(img_array, (IMG_SIZE, IMG_SIZE))
+            img = Image.open(file)
+            img = img.convert("RGB")
+            img = img.resize((IMG_SIZE, IMG_SIZE))
 
             if i < num_test_data:
-                X_test.append(img_array)
+                X_test.append(np.asarray(img))
                 y_test.append(class_index)
             else:
                 # -20度〜20度まで5度ずつ回転させる
-                img = Image.fromarray(img_array)
                 for angle in range(-20, 20, 5):
-                    img_r = np.asarray(img.rotate(angle))
-                    X_train.append(img_r)
+                    img_r = img.rotate(angle)
+                    X_train.append(np.asarray(img_r))
                     y_train.append(class_index)
 
                     # 左右反転データも作成する
-                    img_f = cv2.flip(img_r, 1)
-                    X_train.append(img_f)
+                    img_t = img_r.transpose(Image.FLIP_LEFT_RIGHT)
+                    X_train.append(np.asarray(img_t))
                     y_train.append(class_index)
 
 
