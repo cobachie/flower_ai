@@ -1,50 +1,58 @@
 # ImageNet からモデル生成用画像をダウンロードする
 from urllib import request
-import os, time
+import os, sys, time
 import requests
 import json
 
+from flickrapi import FlickrAPI
+
 def main():
-    # ImageNet API
-    # see: http://image-net.org/download-API
-    IMG_LIST_URL = "http://www.image-net.org/api/text/imagenet.synset.geturls.getmapping?wnid={}"
-    LIMIT_SIZE = 10
+    keyword = sys.argv[1]
 
-    wnid = 'n11712282'
-    url = IMG_LIST_URL.format(wnid)
-    r = requests.get(url)
+    photos = flickr_photos(keyword)
 
-    if r.status_code != requests.codes.ok:
-        print('NG')
-        exit(0)
+    # 画像を保存するディレクトリ
+    STORAGE_DIR = '/Volumes/Photos/flower_ai/'
+    target_dir = STORAGE_DIR + keyword + '/'
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
 
-    # 取得したファイル名とURLをそれぞれ配列に格納する
-    data = r.text.split()
-    names = data[::2]
-    urls = data[1::2]
+    for i, photo in enumerate(photos['photo']):
+        if not save_image(photo, target_dir): continue
 
-    # 画像ダウンロード
-    STORAGE_DIR = '/Volumes/Photos2016/flower_ai/'
-    url = "http://farm1.static.flickr.com/194/467227983_ce131cca2a.jpg"
 
-    for i, name in enumerate(names):
-        url = urls[i]
-        if i > LIMIT_SIZE:
-            break
+def flickr_photos(keyword):
+    # Flickr 接続情報
+    FLICKR_KEY = ''
+    FLICKR_SECRET = ''
 
-        target_dir = STORAGE_DIR + wnid
-        if not os.path.exists(target_dir):
-            os.makedirs(target_dir)
+    # 取得件数
+    PER_PAGE = 300
 
-        filepath = target_dir + '/' + "{}.jpg".format(name)
-        if os.path.exists(filepath): continue
+    flickr = FlickrAPI(FLICKR_KEY, FLICKR_SECRET, format='parsed-json')
 
-        try:
-            request.urlretrieve(url, filepath)
-        except:
-            continue
+    result = flickr.photos.search(
+        text=keyword,
+        per_page=PER_PAGE,
+        media='photos',
+        sort='relevance',
+        safe_search=1,
+        extras='url_q, licence'
+    )
 
-        time.sleep(1)
+    photos = result['photos']
+
+    return photos
+
+
+def save_image(photo, dir):
+    url_q = photo['url_q']
+    img_path = dir + photo['id'] + '.jpg'
+    if os.path.exists(img_path): return False
+
+    request.urlretrieve(url_q, img_path)
+
+    time.sleep(1)
 
 
 if __name__ == "__main__":
