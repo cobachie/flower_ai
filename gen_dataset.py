@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import os
 import glob
 import random
@@ -7,13 +6,15 @@ import numpy as np
 from PIL import Image
 
 DATA_DIR = '/Volumes/Photos/flower_ai/'
-CATEGORIES = ['tulip', 'garbera', 'anemone',
-                'rose', 'cherryblossom', 'viola',
-                'daisy', 'poppy', 'carnation']
+# CATEGORIES = ['tulip', 'garbera', 'anemone',
+#                 'rose', 'cherryblossom', 'viola',
+#                 'daisy', 'poppy', 'carnation']
+CATEGORIES = ['tulip', 'garbera', 'rose']
 IMG_SIZE = 50
 
 def main():
-    num_test_data = 30
+    num_data = 290
+    num_test_data = 100
     X_train = [] # 画像データ(学習用)
     X_test  = [] # 画像データ(評価用)
     y_train = [] # ラベル情報(学習用)
@@ -24,6 +25,8 @@ def main():
         files = glob.glob(path + '/*.jpg')
 
         for i, file in enumerate(files):
+            if i > num_data: break
+
             img = Image.open(file)
             img = img.convert("RGB")
             img = img.resize((IMG_SIZE, IMG_SIZE))
@@ -43,14 +46,22 @@ def main():
                     X_train.append(np.asarray(img_t))
                     y_train.append(class_index)
 
+    X_train, y_train = shuffle_samples(X_train, y_train)
+    X_test, y_test = shuffle_samples(X_test, y_test)
+    # X_train = np.array(X_train)
+    # X_test = np.array(X_test)
+    # y_train = np.array(y_train)
+    # y_test = np.array(y_test)
 
-    X_train = np.array(X_train)
-    X_test = np.array(X_test)
-    y_train = np.array(y_train)
-    y_test = np.array(y_test)
-
-    npy_fpath = DATA_DIR + 'flower.npy'
+    npy_fpath = DATA_DIR + 'flower3.npy'
     np.save(npy_fpath, (X_train, X_test, y_train, y_test))
+
+
+def shuffle_samples(X, y):
+    zipped = list(zip(X, y))
+    np.random.shuffle(zipped)
+    X_result, y_result = zip(*zipped)
+    return np.asarray(X_result), np.asarray(y_result)
 
 
 if __name__ == "__main__":
