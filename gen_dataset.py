@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image
 
 DATA_DIR = '/Volumes/Photos/flower_ai/'
+DATASET_FNAME = 'flower.npy'
 # CATEGORIES = ['tulip', 'garbera', 'anemone',
 #                 'rose', 'cherryblossom', 'viola',
 #                 'daisy', 'poppy', 'carnation']
@@ -53,7 +54,7 @@ def main():
     # y_train = np.array(y_train)
     # y_test = np.array(y_test)
 
-    npy_fpath = DATA_DIR + 'flower3.npy'
+    npy_fpath = DATA_DIR + DATASET_FNAME
     np.save(npy_fpath, (X_train, X_test, y_train, y_test))
 
 

@@ -6,21 +6,26 @@ from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 
 DATA_DIR = '/Volumes/Photos/flower_ai/'
-CATEGORIES = ['tulip', 'garbera', 'anemone',
-              'rose', 'cherryblossom', 'viola',
-              'daisy', 'poppy', 'carnation']
+DATASET_FNAME = 'flower.npy'
+MODEL_FNAME = 'flower_cnn.h5'
+
+# CATEGORIES = ['tulip', 'garbera', 'anemone',
+#               'rose', 'cherryblossom', 'viola',
+#               'daisy', 'poppy', 'carnation']
+CATEGORIES = ['tulip', 'garbera', 'rose']
 IMG_SIZE = 50
 EPOCHS = 25
 
+num_classes = len(CATEGORIES)
+
 def main():
-    dataset_fpath = DATA_DIR + 'flower.npy'
+    dataset_fpath = DATA_DIR + DATASET_FNAME
 
     X_train, X_test, y_train, y_test = np.load(dataset_fpath, allow_pickle=True)
 
     X_train = X_train.astype('float32') / 255
-    X_test = X_test.astype('float') / 255
+    X_test = X_test.astype('float32') / 255
 
-    num_classes = len(CATEGORIES)
     y_train = to_categorical(y_train, num_classes)
     y_test = to_categorical(y_test, num_classes)
 
@@ -29,8 +34,6 @@ def main():
 
 
 def model_train(X, y):
-    num_classes = len(CATEGORIES)
-
     model = Sequential()
 
     model.add(Conv2D(32, (3, 3), padding='same', input_shape=X.shape[1:]))
@@ -64,7 +67,7 @@ def model_train(X, y):
 
     model.fit(X, y, batch_size=32, epochs=EPOCHS)
 
-    model.save(DATA_DIR + 'flower_cnn.h5')
+    model.save(DATA_DIR + MODEL_FNAME)
 
     return model
 
