@@ -1,4 +1,3 @@
-# ImageNet からモデル生成用画像をダウンロードする
 from urllib import request
 import os, sys, time
 import requests
@@ -6,20 +5,26 @@ import json
 
 from flickrapi import FlickrAPI
 
-def main():
-    # keyword = sys.argv[1]
-    flowers = ['tulip', 'garbera', 'anemone',
-               'rose', 'cherryblossom', 'viola',
-               'daisy', 'poppy', 'carnation']
+DATA_DIR = '/Volumes/Photos/flower_ai/'
+# CATEGORIES = ['tulip', 'garbera', 'anemone',
+#               'rose', 'cherryblossom', 'viola',
+#               'daisy', 'poppy', 'carnation']
+CATEGORIES = ['tulip', 'garbera', 'rose']
 
-    for flower_name in flowers:
+# Flickr 接続情報
+FLICKR_KEY = ''
+FLICKR_SECRET = ''
+
+PER_PAGE = 400
+
+def main():
+    for category in CATEGORIES:
         # Flickrを検索して写真の情報を取得する
-        keyword = "{} flower".format(flower_name)
+        keyword = "{} flower".format(category)
         photos = flickr_photos(keyword)
 
         # 写真を保存するディレクトリ
-        STORAGE_DIR = '/Volumes/Photos/flower_ai/'
-        target_dir = STORAGE_DIR + flower_name + '/'
+        target_dir = DATA_DIR + category + '/'
         if not os.path.exists(target_dir):
             os.makedirs(target_dir)
 
@@ -35,13 +40,6 @@ def main():
 
 
 def flickr_photos(keyword):
-    # Flickr 接続情報
-    FLICKR_KEY = ''
-    FLICKR_SECRET = ''
-
-    # 取得件数
-    PER_PAGE = 300
-
     flickr = FlickrAPI(FLICKR_KEY, FLICKR_SECRET, format='parsed-json')
 
     result = flickr.photos.search(
